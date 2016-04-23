@@ -117,10 +117,10 @@ isSolidAt (Z :. x :. y) = y == 0 || y == h-1 || inSquare
     inSquare = abs dx < 2 && abs dy < radius
 
 stream :: Fluid U -> Fluid D
-stream fluid = Repa.traverse fluid id streamStep
+stream fluid = Repa.backpermute e findIndex fluid
   where
-    (Z :. width :. height :. _) = Repa.extent fluid
-    streamStep fluidAt (Z :. x :. y :. a) = fluidAt (Z :. rotate width refX :. rotate height refY :. a)
+    e@(Z :. width :. height :. _) = Repa.extent fluid
+    findIndex (Z :. x :. y :. a) = (Z :. rotate width refX :. rotate height refY :. a)
       where
         (refX, refY) = plusVec (x, y) (gridVectors V.! opposite a)
         rotate size pos = (pos + size) `mod` size
